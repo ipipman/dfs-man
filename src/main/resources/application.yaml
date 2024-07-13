@@ -4,3 +4,4 @@ spring:
 
 dfs:
   path: ${user.home}/dfs-man
+  backupUrl: http://localhost:8081/upload

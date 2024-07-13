@@ -1,7 +1,9 @@
 package cn.ipman.dfs;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+
+import static cn.ipman.dfs.HttpSyncer.X_FILENAME;
 
 /**
  * Description for this class
@@ -23,18 +27,41 @@ public class FileController {
     @Value("${dfs.path}")
     private String uploadPath;
 
+    @Value("${dfs.backupUrl}")
+    private String backupUrl;
+
+    @Autowired
+    HttpSyncer httpSyncer;
+
     @SneakyThrows
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @PostMapping("/upload")
-    public String upload(@RequestParam("file") MultipartFile file) {
+    public String upload(@RequestParam("file") MultipartFile file,
+                         HttpServletRequest request) {
         File dir = new File(uploadPath);
         if (!dir.exists()) {
             dir.mkdir();
         }
-        String filename = file.getOriginalFilename();
+
+        // 没有标记代表时客户端传的, 有代表是多机同步
+        boolean needSync = false;
+        String filename = request.getHeader(X_FILENAME);
+
+        // 同步文件到backup
+        if (filename == null || filename.isEmpty()) {
+            needSync = true;
+            filename = file.getOriginalFilename();
+        }
+
         File uploadFile = new File(uploadPath + "/" + filename);
         System.out.println(uploadPath + "/" + filename);
         file.transferTo(uploadFile);
+
+        // 同步文件到backup
+        if (needSync) {
+            httpSyncer.sync(uploadFile, backupUrl);
+        }
+
         return filename;
     }
 
