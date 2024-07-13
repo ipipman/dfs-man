@@ -1,3 +1,6 @@
 spring:
   application:
     name: dfs-man
+
+dfs:
+  path: ${user.home}/dfs-man
