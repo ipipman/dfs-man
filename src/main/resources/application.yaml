@@ -8,8 +8,7 @@ dfs:
   autoMd5: true
   backupUrl: http://localhost:8091/upload
   downloadUrl: http://localhost:8090/download
-
-
+  group: C8090
 
 rocketmq:
   name-server: 127.0.0.1:9876
