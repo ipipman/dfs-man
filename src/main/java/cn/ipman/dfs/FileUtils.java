@@ -84,6 +84,7 @@ public class FileUtils {
 
     @SneakyThrows
     public static void download(String download, File file) {
+        System.out.println(" =======> download file: " + file.getAbsoluteFile());
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<?> entity = new HttpEntity<>(new HttpHeaders());
         ResponseEntity<Resource> exchange =

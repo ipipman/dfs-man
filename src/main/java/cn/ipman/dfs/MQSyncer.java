@@ -32,6 +32,9 @@ public class MQSyncer {
     @Autowired
     RocketMQTemplate rocketMQTemplate;
 
+    @Value("${dfs.downloadUrl}")
+    private String localUrl;
+
     String topic = "dfs-man";
 
     public void sync(FileMeta meta) {
@@ -57,7 +60,12 @@ public class MQSyncer {
                 return;
             }
 
-            // 去重
+            // 去重当前机器
+            if (localUrl.equals(downloadUrl)) {
+                System.out.println("@@@@@@@@ => the same file server, ignore mq sync task.");
+                return;
+            }
+            System.out.println("@@@@@@@@ => the other file server, process mq sync task.");
 
             // 2. 写meta文件
             String dir = uploadPath + "/" + meta.getName().substring(0, 2);
