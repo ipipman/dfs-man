@@ -39,11 +39,15 @@ public class FileUtils {
     }
 
     public static String getUUIDFile(String file){
-        return UUID.randomUUID() + "." + getExt(file);
+        return UUID.randomUUID() + getExt(file);
     }
 
     public static String getExt(String originalFilename) {
         return originalFilename.substring(originalFilename.lastIndexOf("."));
+    }
+
+    public static String getSubDir(String file){
+        return file.substring(0, 2);
     }
 
     public static void main(String[] args) {

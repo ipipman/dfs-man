@@ -27,14 +27,14 @@ import static cn.ipman.dfs.HttpSyncer.X_FILENAME;
 @RestController
 public class FileController {
 
+    @Value("${dfs.path}")
+    private String uploadPath;
 
     @Value("${dfs.backupUrl}")
     private String backupUrl;
 
     @Autowired
     HttpSyncer httpSyncer;
-
-    private String uploadPath;
 
     @SneakyThrows
     @PostMapping("/upload")
@@ -52,8 +52,9 @@ public class FileController {
             filename = getUUIDFile(file.getOriginalFilename());
         }
 
-        File uploadFile = new File(uploadPath + "/" + filename);
-        System.out.println(uploadPath + "/" + filename);
+        String subDir = FileUtils.getSubDir(filename);
+        File uploadFile = new File(uploadPath + "/" + subDir + "/" + filename);
+        System.out.println(uploadPath + "/" + subDir + "/" + filename);
         file.transferTo(uploadFile);
 
         // 同步文件到backup
@@ -68,7 +69,8 @@ public class FileController {
 
     @RequestMapping("/download")
     public void download(String name, HttpServletResponse response) {
-        String path = uploadPath + "/" + name;
+        String subDir = FileUtils.getSubDir(name);
+        String path = uploadPath + "/" + subDir + "/" + name;
         File file = new File(path);
         try {
             FileInputStream inputStream = new FileInputStream(file);
