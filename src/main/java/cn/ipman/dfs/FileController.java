@@ -6,6 +6,7 @@ import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.DigestUtils;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -77,8 +78,7 @@ public class FileController {
         FileUtils.writeMeta(metaFile, meta);
 
         // 2.2 存放到数据库
-        // 2.3 存放到配置或注册中心,比如zk
-
+        // 2.3 存放到配置或注册中心, 比如zk
 
         // 3.同步到backup
         // 同步文件到backup
@@ -120,5 +120,17 @@ public class FileController {
         }
     }
 
+
+    @RequestMapping("/meta")
+    public String meta(String name) {
+        String subDir = FileUtils.getSubDir(name);
+        String path = uploadPath + "/" + subDir + "/" + name + ".meta";
+        File metaFile = new File(path);
+        try {
+            return FileCopyUtils.copyToString(new FileReader(metaFile));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 }
