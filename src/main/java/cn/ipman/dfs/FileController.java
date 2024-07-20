@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.util.UUID;
 
 import static cn.ipman.dfs.FileUtils.getMimeType;
+import static cn.ipman.dfs.FileUtils.getUUIDFile;
 import static cn.ipman.dfs.HttpSyncer.X_FILENAME;
 
 /**
@@ -25,8 +27,6 @@ import static cn.ipman.dfs.HttpSyncer.X_FILENAME;
 @RestController
 public class FileController {
 
-    @Value("${dfs.path}")
-    private String uploadPath;
 
     @Value("${dfs.backupUrl}")
     private String backupUrl;
@@ -34,15 +34,12 @@ public class FileController {
     @Autowired
     HttpSyncer httpSyncer;
 
+    private String uploadPath;
+
     @SneakyThrows
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     @PostMapping("/upload")
     public String upload(@RequestParam("file") MultipartFile file,
                          HttpServletRequest request) {
-        File dir = new File(uploadPath);
-        if (!dir.exists()) {
-            dir.mkdir();
-        }
 
         // 没有标记代表时客户端传的, 有代表是多机同步
         boolean needSync = false;
@@ -51,7 +48,8 @@ public class FileController {
         // 同步文件到backup
         if (filename == null || filename.isEmpty()) {
             needSync = true;
-            filename = file.getOriginalFilename();
+            //filename = file.getOriginalFilename();
+            filename = getUUIDFile(file.getOriginalFilename());
         }
 
         File uploadFile = new File(uploadPath + "/" + filename);
@@ -66,6 +64,8 @@ public class FileController {
         return filename;
     }
 
+
+
     @RequestMapping("/download")
     public void download(String name, HttpServletResponse response) {
         String path = uploadPath + "/" + name;
@@ -77,8 +77,8 @@ public class FileController {
 
             // 加一些response的头
             response.setCharacterEncoding("UTF-8");
-            //response.setContentType("application/octet-stream");
             response.setContentType(getMimeType(name));
+            //response.setContentType("application/octet-stream");
             //response.setHeader("Content-Disposition", "attachment;filename=" + name);
             response.setHeader("Content-Length", String.valueOf(file.length()));
 
