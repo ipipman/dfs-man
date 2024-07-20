@@ -18,6 +18,7 @@ import java.util.UUID;
 
 import static cn.ipman.dfs.FileUtils.getMimeType;
 import static cn.ipman.dfs.FileUtils.getUUIDFile;
+import static cn.ipman.dfs.HttpSyncer.ORIGIN_FILENAME;
 import static cn.ipman.dfs.HttpSyncer.X_FILENAME;
 
 /**
@@ -52,10 +53,15 @@ public class FileController {
         String filename = request.getHeader(X_FILENAME);
 
         // 同步文件到backup
-        if (filename == null || filename.isEmpty()) {
+        String originalFilename = file.getOriginalFilename();
+        if (filename == null || filename.isEmpty()) { // upload 上传文件
             needSync = true;
-            //filename = file.getOriginalFilename();
-            filename = getUUIDFile(file.getOriginalFilename());
+            filename = getUUIDFile(originalFilename);
+        } else { // 同步文件
+            String xor = request.getHeader(ORIGIN_FILENAME);
+            if (xor != null && !xor.isEmpty()) {
+                originalFilename = xor;
+            }
         }
 
         String subDir = FileUtils.getSubDir(filename);
@@ -66,7 +72,7 @@ public class FileController {
         // 2.处理meta
         FileMeta meta = new FileMeta();
         meta.setName(filename);
-        meta.setOriginalFileName(file.getOriginalFilename());
+        meta.setOriginalFileName(originalFilename);
         meta.setSize(file.getSize());
         if (autoMd5) {
             meta.getTags().put("md5", DigestUtils.md5DigestAsHex(new FileInputStream(uploadFile)));
@@ -83,7 +89,7 @@ public class FileController {
         // 3.同步到backup
         // 同步文件到backup
         if (needSync) {
-            httpSyncer.sync(uploadFile, backupUrl);
+            httpSyncer.sync(uploadFile, backupUrl, originalFilename);
         }
 
         return filename;

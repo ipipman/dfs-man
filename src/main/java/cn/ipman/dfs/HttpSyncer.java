@@ -23,12 +23,14 @@ import org.springframework.http.HttpHeaders;
 public class HttpSyncer {
 
     public final static String X_FILENAME = "X-Filename";
+    public final static String ORIGIN_FILENAME = "X-Orig-Filename";
 
-    public String sync(File file, String url) {
+    public String sync(File file, String url, String originalFilename) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.add(X_FILENAME, file.getName());
+        headers.add(ORIGIN_FILENAME, originalFilename);
 
         MultipartBodyBuilder builder = new MultipartBodyBuilder();
         builder.part("file", new FileSystemResource(file));
