@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 
+import static cn.ipman.dfs.FileUtils.getMimeType;
 import static cn.ipman.dfs.HttpSyncer.X_FILENAME;
 
 /**
@@ -77,7 +78,7 @@ public class FileController {
             // 加一些response的头
             response.setCharacterEncoding("UTF-8");
             //response.setContentType("application/octet-stream");
-            response.setContentType("image/png");
+            response.setContentType(getMimeType(name));
             //response.setHeader("Content-Disposition", "attachment;filename=" + name);
             response.setHeader("Content-Length", String.valueOf(file.length()));
 
