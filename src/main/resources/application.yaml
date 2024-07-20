@@ -4,4 +4,6 @@ spring:
 
 dfs:
   path: ${user.home}/dfs-man
+  autoBackup: true
+  autoMd5: true
   backupUrl: http://localhost:8081/upload
