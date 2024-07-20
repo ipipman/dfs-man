@@ -4,6 +4,18 @@ spring:
 
 dfs:
   path: ${user.home}/dfs-man
-  autoBackup: true
+  syncBackup: false
   autoMd5: true
-  backupUrl: http://localhost:8081/upload
+  backupUrl: http://localhost:8091/upload
+  downloadUrl: http://localhost:8090/download
+
+
+
+rocketmq:
+  name-server: 127.0.0.1:9876
+  producer:
+    group: dfs-producer
+
+
+server:
+  port: 8090

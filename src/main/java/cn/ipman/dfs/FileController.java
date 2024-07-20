@@ -36,11 +36,20 @@ public class FileController {
     @Value("${dfs.backupUrl}")
     private String backupUrl;
 
+    @Value("${dfs.downloadUrl}")
+    private String downloadUrl;
+
     @Autowired
     HttpSyncer httpSyncer;
 
     @Value("${dfs.autoMd5}")
     private boolean autoMd5;
+
+    @Value("${dfs.syncBackup}")
+    private boolean syncBackup;
+
+    @Autowired
+    MQSyncer mqSyncer;
 
     @SneakyThrows
     @PostMapping("/upload")
@@ -74,6 +83,7 @@ public class FileController {
         meta.setName(filename);
         meta.setOriginalFileName(originalFilename);
         meta.setSize(file.getSize());
+        meta.setDownloadUrl(downloadUrl);
         if (autoMd5) {
             meta.getTags().put("md5", DigestUtils.md5DigestAsHex(new FileInputStream(uploadFile)));
         }
@@ -88,8 +98,18 @@ public class FileController {
 
         // 3.同步到backup
         // 同步文件到backup
+        // 实现同步处理文件复制,也可以实现异步处理文件复制
         if (needSync) {
-            httpSyncer.sync(uploadFile, backupUrl, originalFilename);
+            if (syncBackup) {
+                try {
+                    httpSyncer.sync(uploadFile, backupUrl, originalFilename);
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                    // MQSyncer.sync(backupUrl, meta);
+                }
+            } else {
+                mqSyncer.sync(meta);
+            }
         }
 
         return filename;
