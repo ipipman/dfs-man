@@ -76,8 +76,9 @@ public class FileController {
 
             // 加一些response的头
             response.setCharacterEncoding("UTF-8");
-            response.setContentType("application/octet-stream");
-            response.setHeader("Content-Disposition", "attachment;filename=" + name);
+            //response.setContentType("application/octet-stream");
+            response.setContentType("image/png");
+            //response.setHeader("Content-Disposition", "attachment;filename=" + name);
             response.setHeader("Content-Length", String.valueOf(file.length()));
 
             // 读取文件信息, 并逐段输出
