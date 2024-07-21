@@ -20,13 +20,9 @@ import static cn.ipman.dfs.utils.FileUtils.init;
 @EnableConfigurationProperties(DfsConfigProperties.class)
 public class DfsManApplication {
 
-
-
-
     public static void main(String[] args) {
         SpringApplication.run(DfsManApplication.class, args);
     }
-
 
     // 1. 基于文件存储的分布式文件系统
     // 2. 块存储 ==》 最常见,效果最高
