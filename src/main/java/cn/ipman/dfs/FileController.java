@@ -1,5 +1,6 @@
 package cn.ipman.dfs;
 
+import cn.ipman.dfs.config.DfsConfigProperties;
 import cn.ipman.dfs.meta.FileMeta;
 import cn.ipman.dfs.syncer.HttpSyncer;
 import cn.ipman.dfs.syncer.MQSyncer;
@@ -8,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,23 +33,11 @@ import static cn.ipman.dfs.syncer.HttpSyncer.X_FILENAME;
 @RestController
 public class FileController {
 
-    @Value("${dfs.path}")
-    private String uploadPath;
-
-    @Value("${dfs.backupUrl}")
-    private String backupUrl;
-
-    @Value("${dfs.downloadUrl}")
-    private String downloadUrl;
+    @Autowired
+    DfsConfigProperties properties;
 
     @Autowired
     HttpSyncer httpSyncer;
-
-    @Value("${dfs.autoMd5}")
-    private boolean autoMd5;
-
-    @Value("${dfs.syncBackup}")
-    private boolean syncBackup;
 
     @Autowired
     MQSyncer mqSyncer;
@@ -77,8 +65,8 @@ public class FileController {
         }
 
         String subDir = FileUtils.getSubDir(filename);
-        File uploadFile = new File(uploadPath + "/" + subDir + "/" + filename);
-        System.out.println(uploadPath + "/" + subDir + "/" + filename);
+        File uploadFile = new File(properties.getUploadPath() + "/" + subDir + "/" + filename);
+        System.out.println(properties.getUploadPath() + "/" + subDir + "/" + filename);
         file.transferTo(uploadFile);
 
         // 2.处理meta
@@ -86,14 +74,14 @@ public class FileController {
         meta.setName(filename);
         meta.setOriginalFileName(originalFilename);
         meta.setSize(file.getSize());
-        meta.setDownloadUrl(downloadUrl);
-        if (autoMd5) {
+        meta.setDownloadUrl(properties.getDownloadUrl());
+        if (properties.isAutoMd5()) {
             meta.getTags().put("md5", DigestUtils.md5DigestAsHex(new FileInputStream(uploadFile)));
         }
 
         // 2.1 存放到本地文件
         String metaName = filename + ".meta";
-        File metaFile = new File(uploadPath + "/" + subDir + "/" + metaName);
+        File metaFile = new File(properties.getUploadPath() + "/" + subDir + "/" + metaName);
         FileUtils.writeMeta(metaFile, meta);
 
         // 2.2 存放到数据库
@@ -103,26 +91,24 @@ public class FileController {
         // 同步文件到backup
         // 实现同步处理文件复制,也可以实现异步处理文件复制
         if (needSync) {
-            if (syncBackup) {
+            if (properties.isSyncBackup()) {
                 try {
-                    httpSyncer.sync(uploadFile, backupUrl, originalFilename);
+                    httpSyncer.sync(uploadFile, properties.getBackupUrl(), originalFilename);
                 } catch (Exception exception) {
-                    exception.printStackTrace();
-                    // MQSyncer.sync(backupUrl, meta);
+                    System.out.println("sync error :" + exception);
+                    mqSyncer.sync(meta);
                 }
             } else {
                 mqSyncer.sync(meta);
             }
         }
-
         return filename;
     }
-
 
     @RequestMapping("/download")
     public void download(String name, HttpServletResponse response) {
         String subDir = FileUtils.getSubDir(name);
-        String path = uploadPath + "/" + subDir + "/" + name;
+        String path = properties.getUploadPath() + "/" + subDir + "/" + name;
         File file = new File(path);
         try {
             FileInputStream inputStream = new FileInputStream(file);
@@ -153,7 +139,7 @@ public class FileController {
     @RequestMapping("/meta")
     public String meta(String name) {
         String subDir = FileUtils.getSubDir(name);
-        String path = uploadPath + "/" + subDir + "/" + name + ".meta";
+        String path = properties.getUploadPath() + "/" + subDir + "/" + name + ".meta";
         File metaFile = new File(path);
         try {
             return FileCopyUtils.copyToString(new FileReader(metaFile));

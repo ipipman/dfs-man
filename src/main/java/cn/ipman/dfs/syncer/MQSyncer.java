@@ -1,5 +1,6 @@
 package cn.ipman.dfs.syncer;
 
+import cn.ipman.dfs.config.DfsConfigProperties;
 import cn.ipman.dfs.meta.FileMeta;
 import cn.ipman.dfs.utils.FileUtils;
 import com.alibaba.fastjson.JSON;
@@ -25,17 +26,11 @@ import java.io.File;
 @Component
 public class MQSyncer {
 
-    @Value("${dfs.path}")
-    private String uploadPath;
-
-    @Value("${dfs.group}")
-    private String group;
+    @Autowired
+    DfsConfigProperties properties;
 
     @Autowired
     RocketMQTemplate rocketMQTemplate;
-
-    @Value("${dfs.downloadUrl}")
-    private String localUrl;
 
     String topic = "dfs-man";
 
@@ -63,14 +58,14 @@ public class MQSyncer {
             }
 
             // 去重当前机器
-            if (localUrl.equals(downloadUrl)) {
+            if (properties.getDownloadUrl().equals(downloadUrl)) {
                 System.out.println("@@@@@@@@ => the same file server, ignore mq sync task.");
                 return;
             }
             System.out.println("@@@@@@@@ => the other file server, process mq sync task.");
 
             // 2. 写meta文件
-            String dir = uploadPath + "/" + meta.getName().substring(0, 2);
+            String dir = properties.getUploadPath() + "/" + meta.getName().substring(0, 2);
             File metaFile = new File(dir + "/" + meta.getName() + ".meta");
             if (metaFile.exists()) {
                 System.out.println(" ===> meta file exists and ignore save: " + metaFile.getAbsoluteFile());

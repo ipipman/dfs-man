@@ -3,7 +3,7 @@ spring:
     name: dfs-man
 
 dfs:
-  path: ${user.home}/dfs-man
+  uploadPath: ${user.home}/dfs-man
   syncBackup: false
   autoMd5: true
   backupUrl: http://localhost:8091/upload
