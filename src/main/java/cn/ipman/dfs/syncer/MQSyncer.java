@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 
 /**
- * Description for this class
+ * 消息队列同步器，用于文件元信息的同步。
  *
  * @Author IpMan
  * @Date 2024/7/20 17:38
@@ -26,24 +26,47 @@ import java.io.File;
 @Component
 public class MQSyncer {
 
+    /**
+     * DFS配置属性。
+     */
     @Autowired
     DfsConfigProperties properties;
 
+    /**
+     * RocketMQ模板，用于发送消息。
+     */
     @Autowired
     RocketMQTemplate rocketMQTemplate;
 
+    /**
+     * 消息主题。
+     */
     String topic = "dfs-man";
 
+
+    /**
+     * 同步文件元信息到消息队列。
+     *
+     * @param meta 文件元信息。
+     */
     public void sync(FileMeta meta) {
         Message<String> message = MessageBuilder.withPayload(JSON.toJSONString(meta)).build();
         rocketMQTemplate.send(topic, message);
         System.out.println(" ===> send message: " + message);
     }
 
-
+    /**
+     * 文件元信息消息监听器，实现RocketMQListener接口。
+     * 用于接收消息队列中的文件元信息，并根据信息进行相关处理。
+     */
     @Service
     @RocketMQMessageListener(topic = "dfs-man", consumerGroup = "${dfs.group}")
     public class FileMQSyncer implements RocketMQListener<MessageExt> {
+        /**
+         * 接收到消息后执行的方法。
+         *
+         * @param message 接收到的消息。
+         */
         @Override
         public void onMessage(MessageExt message) {
             // 1. 从消息里拿到meta数据
