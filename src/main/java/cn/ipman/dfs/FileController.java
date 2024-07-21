@@ -25,7 +25,7 @@ import static cn.ipman.dfs.syncer.HttpSyncer.ORIGIN_FILENAME;
 import static cn.ipman.dfs.syncer.HttpSyncer.X_FILENAME;
 
 /**
- * Description for this class
+ * 文件控制器，负责处理文件上传、下载和元数据查询操作。
  *
  * @Author IpMan
  * @Date 2024/7/13 08:06
@@ -42,6 +42,15 @@ public class FileController {
     @Autowired
     MQSyncer mqSyncer;
 
+
+    /**
+     * 处理文件上传。
+     * 根据配置决定是否需要同步到备份服务器，并处理文件元数据。
+     *
+     * @param file 上传的文件
+     * @param request HTTP请求
+     * @return 上传后的文件名
+     */
     @SneakyThrows
     @PostMapping("/upload")
     public String upload(@RequestParam("file") MultipartFile file,
@@ -64,6 +73,7 @@ public class FileController {
             }
         }
 
+        // 构建文件存储路径并保存文件, 取16进制的前2位作为目录
         String subDir = FileUtils.getSubDir(filename);
         File uploadFile = new File(properties.getUploadPath() + "/" + subDir + "/" + filename);
         System.out.println(properties.getUploadPath() + "/" + subDir + "/" + filename);
@@ -105,6 +115,13 @@ public class FileController {
         return filename;
     }
 
+    /**
+     * 处理文件下载。
+     * 根据文件名准备文件并设置HTTP响应头以触发浏览器下载。
+     *
+     * @param name 文件名
+     * @param response HTTP响应
+     */
     @RequestMapping("/download")
     public void download(String name, HttpServletResponse response) {
         String subDir = FileUtils.getSubDir(name);
@@ -136,6 +153,13 @@ public class FileController {
     }
 
 
+    /**
+     * 查询文件元数据。
+     * 根据文件名读取并返回元数据文件的内容。
+     *
+     * @param name 文件名
+     * @return 文件元数据的字符串表示
+     */
     @RequestMapping("/meta")
     public String meta(String name) {
         String subDir = FileUtils.getSubDir(name);
