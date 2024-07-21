@@ -1,5 +1,7 @@
-package cn.ipman.dfs;
+package cn.ipman.dfs.syncer;
 
+import cn.ipman.dfs.meta.FileMeta;
+import cn.ipman.dfs.utils.FileUtils;
 import com.alibaba.fastjson.JSON;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;

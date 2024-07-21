@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
 
-import static cn.ipman.dfs.FileUtils.init;
+import static cn.ipman.dfs.utils.FileUtils.init;
 
 @SpringBootApplication
 @Import(RocketMQAutoConfiguration.class)

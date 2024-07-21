@@ -1,7 +1,7 @@
-package cn.ipman.dfs;
+package cn.ipman.dfs.utils;
 
+import cn.ipman.dfs.meta.FileMeta;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.util.IOUtils;
 import lombok.SneakyThrows;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;

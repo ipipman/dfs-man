@@ -1,4 +1,4 @@
-package cn.ipman.dfs;
+package cn.ipman.dfs.syncer;
 
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;

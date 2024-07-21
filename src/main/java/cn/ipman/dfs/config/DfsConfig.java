@@ -1,4 +1,4 @@
-package cn.ipman.dfs;
+package cn.ipman.dfs.config;
 
 import jakarta.servlet.MultipartConfigElement;
 import org.springframework.boot.web.servlet.MultipartConfigFactory;

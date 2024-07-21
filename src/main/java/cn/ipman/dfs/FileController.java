@@ -1,5 +1,9 @@
 package cn.ipman.dfs;
 
+import cn.ipman.dfs.meta.FileMeta;
+import cn.ipman.dfs.syncer.HttpSyncer;
+import cn.ipman.dfs.syncer.MQSyncer;
+import cn.ipman.dfs.utils.FileUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
@@ -14,12 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.util.UUID;
 
-import static cn.ipman.dfs.FileUtils.getMimeType;
-import static cn.ipman.dfs.FileUtils.getUUIDFile;
-import static cn.ipman.dfs.HttpSyncer.ORIGIN_FILENAME;
-import static cn.ipman.dfs.HttpSyncer.X_FILENAME;
+import static cn.ipman.dfs.utils.FileUtils.getMimeType;
+import static cn.ipman.dfs.utils.FileUtils.getUUIDFile;
+import static cn.ipman.dfs.syncer.HttpSyncer.ORIGIN_FILENAME;
+import static cn.ipman.dfs.syncer.HttpSyncer.X_FILENAME;
 
 /**
  * Description for this class

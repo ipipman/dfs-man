@@ -1,4 +1,4 @@
-package cn.ipman.dfs;
+package cn.ipman.dfs.meta;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
