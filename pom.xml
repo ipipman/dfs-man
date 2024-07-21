@@ -11,12 +11,13 @@
 
     <groupId>io.github.ipipman</groupId>
     <artifactId>dfs-man</artifactId>
-    <version>0.0.1</version>
+    <version>${dfs.version}</version>
 
     <name>dfs-man</name>
     <description>dfs-man</description>
 
     <properties>
+        <dfs.version>0.0.2</dfs.version>
         <java.version>17</java.version>
     </properties>
 
